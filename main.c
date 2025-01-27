@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#define MAX_ROD_LENGTH 10000  // or any upper bound you expect
+#define MAX_ROD_LENGTH 10000
 #define MAX_LINES 100
 
 int main(int argc, char *argv[]) {
