@@ -6,7 +6,7 @@
 int main(int argc, char *argv[]) {
   // Check if the input is valid, if it isn't throw an error
   if (argc != 2) {
-    fprintf(stderr, "Usage: %s <rod length>\n", argv[0]);
+    fprintf(stderr, "Missing Rod Length!\n");
     return 1;
   }
 
@@ -22,7 +22,7 @@ int main(int argc, char *argv[]) {
   int values[MAX_LINES];
   int pieceCount = 0;
 
-  while (scanf_s("%d, %d", &lengths[pieceCount], &values[pieceCount]) == 2) {
+  while (scanf("%d, %d", &lengths[pieceCount], &values[pieceCount]) == 2) {
     pieceCount++;
     if (pieceCount >= MAX_LINES) {
       fprintf(stderr, "Warning: reached maximum number of input lines (%d).\n",
@@ -51,16 +51,18 @@ int main(int argc, char *argv[]) {
   }
 
   for (int index = 0; index < pieceCount; index++) {
-    int pieceLen = lengths[index];
-    int pieceVal = values[index];
+    int pieceLength = lengths[index];
+    int pieceValue = values[index];
 
     // Only update from pieceLen up to rodLength
-    for (int currentLen = pieceLen; currentLen <= rodLength; currentLen++) {
-      int candidateValue = bestValueForLength[currentLen - pieceLen] + pieceVal;
+    for (int currentLength = pieceLength; currentLength <= rodLength;
+         currentLength++) {
+      int candidateValue =
+          bestValueForLength[currentLength - pieceLength] + pieceValue;
 
-      if (candidateValue > bestValueForLength[currentLen]) {
-        bestValueForLength[currentLen] = candidateValue;
-        chosenPiece[currentLen] = index;  // record which piece we used
+      if (candidateValue > bestValueForLength[currentLength]) {
+        bestValueForLength[currentLength] = candidateValue;
+        chosenPiece[currentLength] = index;  // record which piece we used
       }
     }
   }
