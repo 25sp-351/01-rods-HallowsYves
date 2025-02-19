@@ -1,45 +1,12 @@
+#include "rod_cut.h"
 #include <errno.h>
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
-#define MAX_ROD_LENGTH 10000
-#define MAX_LINES 100
 
-int main(int argc, char *argv[]) {
-  // Check if the input is valid, if it isn't throw an error
-  if (argc != 2) {
-    fprintf(stderr, "Missing Rod Length!\n");
-    return 1;
-  }
-
-  // Convert input string into integer that we can actually use
-  char *endPointer = 0;
-  errno = 0;
-  long rodLength = strtol(argv[1], &endPointer, 10);
-
-  if (errno != 0 || *endPointer != '\0') {
-    perror("strtol");
-    exit(EXIT_FAILURE);
-  }
-
-  if (rodLength > INT_MAX || rodLength < INT_MIN) {
-    fprintf(stderr, "rodLength out of int range\n");
-    return EXIT_FAILURE;
-  }
-
-  int rodLengthInteger = (int)rodLength;
-
-  if (rodLengthInteger <= 0) {
-    fprintf(stderr, "Error: rod length must be a positive integer.\n");
-    return 1;
-  }
-
-  // Read pairs (length, value) from input
-  int lengths[MAX_LINES];
-  int values[MAX_LINES];
+int read_input(int rodLengths[], int values[]) {
   int pieceCount = 0;
-
-  while (scanf("%d, %d", &lengths[pieceCount], &values[pieceCount]) == 2) {
+  while (scanf("%d, %d", &rodLengths[pieceCount], &values[pieceCount]) == 2) {
     pieceCount++;
     if (pieceCount >= MAX_LINES) {
       fprintf(stderr, "Warning: reached maximum number of input lines (%d).\n",
@@ -47,11 +14,51 @@ int main(int argc, char *argv[]) {
       break;
     }
   }
+  return pieceCount;
+}
+
+int parse_rod_length(int argc, char *argv[]) {
+  if (argc != 2) {
+    fprintf(stderr, "Missing Rod Length!\n");
+    exit(EXIT_FAILURE);
+  }
+
+  char *endPointer = 0;
+  errno = 0;
+  long rodLength = strtol(argv[1], &endPointer, 10);
+
+  if (errno != 0 || *endPointer != '\0') {
+    perror("strlol");
+    exit(EXIT_FAILURE);
+  }
+
+  if (rodLength > INT_MAX || rodLength < INT_MIN) {
+    fprintf(stderr, "rod length out of integer range. \n");
+    return EXIT_FAILURE;
+  }
+
+  int rodLengthInteger = (int)rodLength;
+  if (rodLengthInteger <= 0) {
+    fprintf(stderr, "Error: rod length must be a positive integer.\n");
+    return (EXIT_FAILURE);
+  }
+  return rodLengthInteger;
+}
+
+int main(int argc, char *argv[]) {
+
+  // Call parse_rod_length to get an integer we can use
+  int rodLengthInteger = parse_rod_length(argc, argv);
+
+  // Read pairs (length, value) from input
+  int lengths[MAX_LINES];
+  int values[MAX_LINES];
+  int pieceCount = read_input(lengths, values);
 
   // if there isn't anything to read, notify user
   if (pieceCount == 0) {
     fprintf(stderr, "No piece definitions read from input!\n");
-    return 1;
+    return EXIT_FAILURE;
   }
 
   // Create two arrays,
