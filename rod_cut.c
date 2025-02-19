@@ -1,3 +1,5 @@
+#include <errno.h>
+#include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #define MAX_ROD_LENGTH 10000
@@ -11,8 +13,23 @@ int main(int argc, char *argv[]) {
   }
 
   // Convert input string into integer that we can actually use
-  int rodLength = atoi(argv[1]);
-  if (rodLength <= 0) {
+  char *endPointer = 0;
+  errno = 0;
+  long rodLength = strtol(argv[1], &endPointer, 10);
+
+  if (errno != 0 || *endPointer != '\0') {
+    perror("strtol");
+    exit(EXIT_FAILURE);
+  }
+
+  if (rodLength > INT_MAX || rodLength < INT_MIN) {
+    fprintf(stderr, "rodLength out of int range\n");
+    return EXIT_FAILURE;
+  }
+
+  int rodLengthInteger = (int)rodLength;
+
+  if (rodLengthInteger <= 0) {
     fprintf(stderr, "Error: rod length must be a positive integer.\n");
     return 1;
   }
@@ -46,7 +63,7 @@ int main(int argc, char *argv[]) {
 
   // Loop through the length of the rod, if no choice has been made yet,
   // initialize to -1
-  for (int index = 0; index <= rodLength; index++) {
+  for (int index = 0; index <= rodLengthInteger; index++) {
     chosenPiece[index] = -1;
   }
 
@@ -55,21 +72,21 @@ int main(int argc, char *argv[]) {
     int pieceValue = values[index];
 
     // Only update from pieceLen up to rodLength
-    for (int currentLength = pieceLength; currentLength <= rodLength;
+    for (int currentLength = pieceLength; currentLength <= rodLengthInteger;
          currentLength++) {
       int candidateValue =
           bestValueForLength[currentLength - pieceLength] + pieceValue;
 
       if (candidateValue > bestValueForLength[currentLength]) {
         bestValueForLength[currentLength] = candidateValue;
-        chosenPiece[currentLength] = index;  // record which piece we used
+        chosenPiece[currentLength] = index; // record which piece we used
       }
     }
   }
 
   // Reconstruct, so we can see which pieces we actually cut
-  int currentLength = rodLength;
-  int remainder = rodLength;
+  int currentLength = rodLengthInteger;
+  int remainder = rodLengthInteger;
 
   // Usage count for each piece
   int usage[MAX_LINES];
@@ -84,7 +101,7 @@ int main(int argc, char *argv[]) {
     currentLength -= lengths[chosenIndex];
   }
 
-  remainder = currentLength;  // whatever is left
+  remainder = currentLength; // whatever is left
 
   // Print the cutting list
   for (int index = 0; index < pieceCount; index++) {
@@ -96,6 +113,6 @@ int main(int argc, char *argv[]) {
 
   // Print remainder and total value
   printf("Remainder: %d\n", remainder);
-  printf("Value: %d\n", bestValueForLength[rodLength]);
+  printf("Value: %d\n", bestValueForLength[rodLengthInteger]);
   return 0;
 }
